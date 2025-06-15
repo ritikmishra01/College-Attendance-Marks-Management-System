@@ -59,6 +59,55 @@ A full-stack web application that simplifies attendance tracking, marks manageme
 
 ---
 
+## Folder Structure
+college-attendance-system/
+├── admin/
+│   ├── admin.php
+│   ├── add_student.php
+│   ├── add_teacher.php
+│   ├── edit_student.php
+│   ├── edit_teacher.php
+│   ├── delete_student.php
+│   ├── delete_teacher.php
+│   ├── change_password.php
+│   └── index.php
+├── dashboard/
+│   ├── student.php
+│   └── teacher.php
+├── attendance/
+│   ├── mark.php
+│   ├── report-student.php
+│   ├── view_attendance.php
+│   ├── session.php
+│   └── defaulter_list.php
+├── marks/
+│   ├── enter.php
+│   ├── report-teacher.php
+│   └── report-student.php
+├── courses/
+│   ├── upload_material.php
+│   ├── view.php
+│   └── teacher_view.php
+├── student/
+│   └── change_password.php
+├── teacher/
+│   └── change_password.php
+├── includes/
+│   ├── db.php
+│   ├── auth.php
+│   └── location_utils.php
+├── assets/
+│   ├── css/
+│   └── js/
+│       └── location.js
+├── uploads/                 # Stores uploaded course materials
+├── forgot-password.php
+├── reset-password.php
+├── login.php
+├── logout.php
+└── index.html
+
+
 ##  Setup Instructions
 
 1. **Clone the repo or download ZIP**
