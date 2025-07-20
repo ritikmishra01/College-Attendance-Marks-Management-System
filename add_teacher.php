@@ -13,10 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
-    $password = $_POST['password'];
+    $password = trim($_POST['password']);
 
-    if (!$name || !$username || !$email || !$password) {
-        $message = "All fields are required.";
+    // Validate empty fields (including whitespace-only inputs)
+    if (empty($name) || ctype_space($name) || 
+        empty($username) || ctype_space($username) || 
+        empty($email) || ctype_space($email) || 
+        empty($password) || ctype_space($password)) {
+        $message = "All fields are required and cannot be just spaces.";
         $message_type = 'error';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "Invalid email address.";
@@ -47,9 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php
-// [Keep your existing PHP code exactly the same]
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,232 +62,376 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --primary-dark: #3a56d4;
-            --success-color: #4bb543;
-            --error-color: #ff3333;
-            --light-bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #2b2b2b;
-            --text-light: #6c757d;
-            --border-color: #e1e5eb;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --primary: #2a5298;
+            --primary-light: #3b6bc5;
+            --primary-dark: #1e3c72;
+            --light: #ffffff;
+            --dark: #1a202c;
+            --gray-100: #f8fafc;
+            --gray-200: #f1f5f9;
+            --gray-300: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-
+        
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-color);
-            line-height: 1.6;
+            background-color: var(--gray-100);
+            color: var(--dark);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
-
-        .admin-container {
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Impressive Header Design */
+        .header-wrapper {
+            position: relative;
+            margin-bottom: 3rem;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
             display: flex;
-            min-height: 100vh;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
-        /* Sidebar styles would go here */
-        /* Main content area */
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            background-color: var(--light);
+            border-radius: 15px;
+            padding: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .site-name {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--light);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.25rem;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        /* Main Content */
         .main-content {
-            flex: 1;
-            padding: 30px;
+            position: relative;
+            z-index: 3;
+            margin-top: -50px;
         }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 30px;
-            margin-bottom: 30px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
+        
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
-
+        
         .page-title {
-            font-size: 24px;
+            font-size: 1.8rem;
+            color: var(--primary);
             font-weight: 600;
-            color: var(--text-color);
         }
-
+        
         .back-link {
             display: inline-flex;
             align-items: center;
-            color: var(--primary-color);
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
             text-decoration: none;
+            border-radius: 30px;
+            transition: var(--transition);
             font-weight: 500;
-            transition: color 0.3s;
+            box-shadow: var(--card-shadow);
         }
-
-        .back-link i {
-            margin-right: 8px;
-        }
-
+        
         .back-link:hover {
-            color: var(--primary-dark);
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-
+        
+        /* Card */
+        .card {
+            background: var(--light);
+            border-radius: 15px;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Alert Messages */
         .alert {
-            padding: 15px 20px;
-            margin-bottom: 25px;
-            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            font-size: 14px;
+            gap: 1rem;
+            font-size: 1rem;
         }
-
-        .alert i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-
+        
         .alert-success {
-            background-color: rgba(75, 181, 67, 0.1);
-            color: var(--success-color);
-            border: 1px solid rgba(75, 181, 67, 0.3);
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
-
+        
         .alert-error {
-            background-color: rgba(255, 51, 51, 0.1);
-            color: var(--error-color);
-            border: 1px solid rgba(255, 51, 51, 0.3);
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
-
+        
+        /* Form Styles */
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 1.75rem;
         }
-
+        
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.75rem;
             font-weight: 500;
-            font-size: 14px;
-            color: var(--text-color);
+            color: var(--dark);
+            font-size: 1rem;
         }
-
+        
         .form-control {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            transition: all 0.3s;
+            padding: 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
             background-color: #fcfcfc;
         }
-
+        
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.2);
             background-color: #fff;
         }
-
+        
         .input-group {
             position: relative;
         }
-
-        .input-group .form-control {
-            padding-right: 40px;
-        }
-
+        
         .input-icon {
             position: absolute;
-            right: 15px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-light);
             cursor: pointer;
+            color: var(--gray-500);
+            font-size: 1.1rem;
         }
-
+        
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--primary-color);
+            padding: 1rem 2rem;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 15px;
+            border-radius: 8px;
             font-weight: 500;
-            border-radius: var(--border-radius);
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .btn i {
-            margin-right: 8px;
-        }
-
+        
         .btn:hover {
             background-color: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
         }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
+        
         .password-strength {
-            margin-top: 8px;
-            font-size: 12px;
-            color: var(--text-light);
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--dark);
         }
-
+        
         .strength-meter {
-            height: 4px;
-            background: #eee;
-            border-radius: 2px;
-            margin-top: 5px;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            margin-top: 0.5rem;
             overflow: hidden;
         }
-
+        
         .strength-meter-fill {
             height: 100%;
             width: 0;
             transition: width 0.3s, background 0.3s;
+            border-radius: 3px;
         }
-
+        
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .main-content {
-                padding: 20px;
+            .header-wrapper {
+                height: 180px;
+                clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            }
+            
+            .header-content {
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .site-name {
+                font-size: 1.5rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            
+            .back-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-wrapper {
+                height: 160px;
+            }
+            
+            .logo {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .site-name {
+                font-size: 1.3rem;
+            }
+            
+            .user-info {
+                padding: 0.5rem 1rem;
+            }
+            
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .user-name {
+                font-size: 0.9rem;
             }
             
             .card {
-                padding: 20px;
+                padding: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Sidebar would go here -->
-        
-        <div class="main-content">
-            <div class="card">
-                <div class="page-header">
-                    <h1 class="page-title">Add New Teacher</h1>
-                    <a href="index.php" class="back-link">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
+    <!-- Impressive Header Section -->
+    <div class="header-wrapper">
+        <div class="header-content">
+            <a href="../index.php" class="brand">
+                <img src="../assets/images/logo.png" alt="AttendEase Logo" class="logo">
+                <span class="site-name">AttendEase</span>
+            </a>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-cog" style="color: white; font-size: 1rem;"></i>
                 </div>
+                <span class="user-name"><?= htmlspecialchars($_SESSION['name']) ?></span>
+            </div>
+        </div>
+    </div>
 
+    <div class="container">
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Add New Teacher</h1>
+                <a href="index.php" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <div class="card">
                 <?php if ($message): ?>
                     <div class="alert alert-<?= $message_type === 'success' ? 'success' : 'error' ?>">
                         <i class="fas <?= $message_type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' ?>"></i>
@@ -377,20 +522,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 0:
                 case 1:
                     strengthName = 'Weak';
-                    strengthColor = '#ff4444';
+                    strengthColor = '#ef4444';
                     break;
                 case 2:
                     strengthName = 'Fair';
-                    strengthColor = '#ffbb33';
+                    strengthColor = '#f59e0b';
                     break;
                 case 3:
                     strengthName = 'Good';
-                    strengthColor = '#00C851';
+                    strengthColor = '#3b82f6';
                     break;
                 case 4:
                 case 5:
                     strengthName = 'Strong';
-                    strengthColor = '#00C851';
+                    strengthColor = '#10b981';
                     break;
             }
             
@@ -398,9 +543,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             strengthMeter.style.width = (strength * 20) + '%';
             strengthMeter.style.backgroundColor = strengthColor;
         });
+
+        // Form validation to prevent empty spaces
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const inputs = this.querySelectorAll('input[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.style.borderColor = '#ef4444';
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields with valid information (not just spaces).');
+            }
+        });
     </script>
 </body>
 </html>
-
-
-
